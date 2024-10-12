@@ -1,0 +1,31 @@
+{
+    "manifest_version": 3,
+    "name": "ChatGPT Bulk Actions",
+    "version": "1.0",
+    "description": "Ajouter des checkboxes pour gérer des actions en bulk sur ChatGPT.",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting"
+    ],
+    "host_permissions": [
+        "https://chatgpt.com/*"
+    ],
+    "action": {
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://chatgpt.com/*"
+            ],
+            "js": [
+                "contentScript.js"
+            ]
+        }
+    ]
+}
