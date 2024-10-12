@@ -1,0 +1,113 @@
+<p align="center">
+  <img src="src/icons/icon128.png" alt="Project Logo" width="150">
+</p>
+
+<h1 align="center">Chrome Extension Sidebar Enhancer</h1>
+
+<p align="center">
+  <i>Enhance your Chrome Extension sidebar with favorites, checkboxes, and more</i>
+</p>
+
+---
+
+## 📝 Overview
+
+This Chrome extension enhances the default sidebar by adding features like checkboxes, favorite stars, and tooltip support. It also organizes your favorite items into a dedicated section at the top for easy access, making the sidebar more user-friendly and customizable.
+
+---
+
+## 🌟 Features
+
+- **Favorite Management**: Add or remove items from favorites with a star icon.
+- **Checkboxes**: Enable bulk selection of items in the sidebar.
+- **Tooltips**: Instantly view the full title of items with hover tooltips.
+- **Dynamic Favorites Section**: Automatically moves favorite items to a dedicated "Favorites" section at the top.
+- **Persistent Storage**: Favorites are saved and loaded from localStorage.
+
+---
+
+## 🚀 Getting Started
+
+To get started with this project, follow these steps:
+
+### Prerequisites
+
+- Node.js & npm
+- Chrome Browser
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/chrome-extension-sidebar-enhancer.git
+   ```
+
+2. Navigate to the project folder:
+
+   ```bash
+   cd chrome-extension-sidebar-enhancer
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Load the extension into Chrome:
+   - Go to `chrome://extensions/`.
+   - Enable **Developer mode**.
+   - Click **Load unpacked** and select the project folder.
+
+---
+
+## 🛠 Usage
+
+Once the extension is loaded, the sidebar will automatically display the new features when browsing supported pages. You can click the stars to add items to your "Favorites" section, check boxes to select multiple items, and hover over items to see their full titles.
+
+---
+
+## 📋 Roadmap
+
+### v1.0
+
+- [x] Add favorite stars and checkboxes to the sidebar items.
+- [x] Automatically move favorite items to a "Favorites" section.
+- [x] Save favorite items in `localStorage` and load them on page refresh.
+- [x] Add tooltips for item titles and stars for better user experience.
+
+### v2.0 (Planned)
+
+- [ ] **Custom Sorting**: Enable drag-and-drop sorting for sidebar items.
+- [ ] **Search Functionality**: Add a search bar to filter through sidebar items.
+- [ ] **Settings Panel**: Add a settings panel to allow customization of the sidebar's appearance and behavior.
+- [ ] **Themes**: Provide support for dark mode and custom themes.
+
+---
+
+## 💻 Contributing
+
+We welcome contributions! Feel free to fork this repository, create a new branch, and submit a pull request. Please ensure that your changes follow the code standards and are thoroughly tested.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 💬 Contact
+
+If you have any questions or feedback, feel free to reach out:
+
+- **Email**: yann.aleman27@gmail.com
+- **Linkedin**: [Yann ALEMAN](https://www.linkedin.com/in/yann-aleman-0a307a61)
+- **GitHub**: [SanYann](https://github.com/SanYann)
+
+---
+
+<p align="center">
+  Made with 💻 and ☕ by <b>SanYann</b>
+</p>
