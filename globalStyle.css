@@ -1,0 +1,28 @@
+#chatgpt-chip {
+  transition: transform 0.3s ease;
+}
+
+#chatgpt-chip:hover {
+  transform: scale(1.1);
+}
+
+#chatgpt-modal h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+#chatgpt-modal textarea {
+  font-size: 1rem;
+}
+
+#chatgpt-modal button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+#chatgpt-modal button:hover {
+  background-color: #0056b3;
+}
