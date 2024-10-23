@@ -1,111 +1,120 @@
-function injectCustomCSS() {
+// Inject additional CSS for new elements
+function injectAdditionalCSS() {
     const style = document.createElement('style');
     style.textContent = `
-        .text-content, .favorite-star {
-            transition-delay: 0s; /* Remove any delay */
-            transition: opacity 0.1s ease-in-out; /* Adjust appearance speed */
-        }
-        .favorite-star {
+        .edit-toggle {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
             cursor: pointer;
-            font-size: 18px;
         }
 
         .bulk-checkbox {
-            margin-left: 10px;
+            display: none; /* Hide by default, shown only in edit mode */
         }
 
-        .sidebar-section h3 {
-            font-weight: bold;
-            margin-bottom: 5px;
+        .red-trash {
+            display: none; /* Hide by default, shown when checkboxes are checked */
+            color: red;
+            cursor: pointer;
         }
-        
-        li {
-            list-style-type: none;
+
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: white;
+            border: 1px solid black;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .modal .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
         }
     `;
     document.head.appendChild(style);
 }
 
-function waitForSidebar(callback) {
-    const observer = new MutationObserver((mutations, obs) => {
-        const sidebar = document.querySelector('.flex.flex-col.gap-2.pb-2.text-token-text-primary.text-sm.false.mt-5');
-        if (sidebar) {
-            obs.disconnect();
-            injectCustomCSS();
-            callback(sidebar);
-        }
+// Toggle edit mode and add checkbox behavior
+function toggleEditMode() {
+    const isEditMode = JSON.parse(localStorage.getItem('editMode')) || false;
+    const newEditMode = !isEditMode;
+    localStorage.setItem('editMode', newEditMode);
+    document.querySelectorAll('.bulk-checkbox').forEach(cb => {
+        cb.style.display = newEditMode ? 'block' : 'none';
+    });
+    document.querySelectorAll('.favorite-star').forEach(star => {
+        star.style.display = newEditMode ? 'none' : 'block';
     });
 
-
-    observer.observe(document.body, { childList: true, subtree: true });
-}
-
-function populateFavoritesOnLoad() {
-    let favorites = JSON.parse(localStorage.getItem('favoritePrompts')) || [];
-    let validFavorites = [];
-
-    favorites.forEach(href => {
-        const link = document.querySelector(`a[href="${href}"]`);
-        if (link) {
-            const item = link.closest('li');
-            if (item) {
-                moveItemToFavorites(item);
-                validFavorites.push(href);
-            }
-        } else {
-            console.warn(`No matching link found for href: ${href}, clearing from storage.`);
-        }
-    });
-
-    localStorage.setItem('favoritePrompts', JSON.stringify(validFavorites));
-}
-
-
-function initializeFavoritesSection(sidebar) {
-
-    let favoritesSection = document.querySelector('#favorites-section');
-    if (!favoritesSection) {
-
-        const favoritesWrapper = document.createElement('div');
-        favoritesWrapper.className = 'relative mt-5 first:mt-0 last:mb-5';
-
-        const stickyHeader = document.createElement('div');
-        stickyHeader.className = 'sticky bg-token-sidebar-surface-primary top-0 z-20';
-
-        const headerSpan = document.createElement('span');
-        headerSpan.className = 'flex h-9 items-center';
-
-        const favoritesHeader = document.createElement('h3');
-        favoritesHeader.className = 'px-2 text-xs font-semibold text-ellipsis overflow-hidden break-all pt-3 pb-2 text-token-text-primary';
-        favoritesHeader.innerText = 'Favorites';
-
-        headerSpan.appendChild(favoritesHeader);
-        stickyHeader.appendChild(headerSpan);
-        favoritesWrapper.appendChild(stickyHeader);
-
-
-        favoritesSection = document.createElement('ul');
-        favoritesSection.id = 'favorites-section';
-        favoritesSection.className = 'sidebar-section';
-        favoritesWrapper.appendChild(favoritesSection);
-
-
-        sidebar.prepend(favoritesWrapper);
-        populateFavoritesOnLoad()
+    // Update red-trash icon visibility based on mode
+    const trashIcon = document.querySelector('.red-trash');
+    if (trashIcon) {
+        trashIcon.style.display = newEditMode ? 'block' : 'none';
     }
 }
 
+// Function to add the toggle switch for Edit Mode
+function addEditModeToggle() {
+    const exploreSection = document.querySelector('.explore-gpts'); // Adjust this selector to the correct position under "Explore GPTs"
+    if (exploreSection) {
+        const toggleWrapper = document.createElement('div');
+        toggleWrapper.className = 'edit-toggle';
 
+        const label = document.createElement('label');
+        label.innerText = 'Edit Mode';
+
+        const toggle = document.createElement('input');
+        toggle.type = 'checkbox';
+        toggle.addEventListener('change', () => {
+            toggleEditMode();
+        });
+
+        toggleWrapper.appendChild(toggle);
+        toggleWrapper.appendChild(label);
+        exploreSection.appendChild(toggleWrapper);
+    }
+}
+
+// Function to handle displaying the trash icon and showing modal
+function handleTrashIcon() {
+    const selected = document.querySelectorAll('.bulk-checkbox:checked');
+    const trashIcon = document.querySelector('.red-trash');
+    if (selected.length > 0) {
+        trashIcon.style.display = 'block';
+    } else {
+        trashIcon.style.display = 'none';
+    }
+}
+
+// Function to add checkboxes or stars depending on Edit Mode
 function addCheckboxesAndStars() {
+    const isEditMode = JSON.parse(localStorage.getItem('editMode')) || false;
     const historyItems = document.querySelectorAll('li');
 
     historyItems.forEach((item) => {
         const textLink = item.querySelector('a');
-
         if (textLink) {
             const href = textLink.getAttribute('href');
-
-
             const draggableDiv = item.querySelector('.no-draggable');
             if (draggableDiv) {
                 draggableDiv.style.display = 'flex';
@@ -120,97 +129,94 @@ function addCheckboxesAndStars() {
                     draggableDiv.insertBefore(flexContainer, draggableDiv.firstChild);
                 }
 
+                if (isEditMode) {
+                    if (!flexContainer.querySelector('.bulk-checkbox')) {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'bulk-checkbox';
+                        checkbox.style.display = 'block';
+                        checkbox.addEventListener('change', handleTrashIcon);
+                        flexContainer.appendChild(checkbox);
+                    }
+                } else {
+                    if (!flexContainer.querySelector('.favorite-star')) {
+                        const star = document.createElement('span');
+                        star.className = 'favorite-star';
+                        star.style.cursor = 'pointer';
+                        star.innerHTML = isFavorite(href) ? '⭐' : '☆';
+                        star.title = isFavorite(href) ? 'Remove from favorites' : 'Add to favorites';
 
-                if (!flexContainer.querySelector('.favorite-star')) {
-                    const star = document.createElement('span');
-                    star.className = 'favorite-star';
-                    star.style.cursor = 'pointer';
-                    star.innerHTML = isFavorite(href) ? '⭐' : '☆';
-                    star.title = isFavorite(href) ? 'Remove from favorites' : 'Add to favorites';
-
-                    star.addEventListener('click', () => toggleFavorite(href, star, item));
-                    flexContainer.appendChild(star);
+                        star.addEventListener('click', () => toggleFavorite(href, star, item));
+                        flexContainer.appendChild(star);
+                    }
                 }
-
-                /* TODO
-                                if (!flexContainer.querySelector('.bulk-checkbox')) {
-                                    const checkbox = document.createElement('input');
-                                    checkbox.type = 'checkbox';
-                                    checkbox.className = 'bulk-checkbox';
-                                    flexContainer.appendChild(checkbox);
-                                }
-                */
-
-                const textDiv = textLink.querySelector('div.relative');
-                const maxTextWidth = '200px';
-                if (textDiv) {
-                    textDiv.classList.add('text-content');
-                    textDiv.style.maxWidth = maxTextWidth;
-                    textDiv.style.minWidth = maxTextWidth;
-                    textDiv.style.overflow = 'hidden';
-                    textDiv.style.whiteSpace = 'nowrap';
-                    textDiv.style.textOverflow = 'ellipsis';
-                    textDiv.title = textDiv.textContent;
-                }
-                textLink.style.maxWidth = maxTextWidth;
-                textLink.style.minWidth = maxTextWidth;
-                textLink.style.overflow = 'hidden';
-                textLink.style.textOverflow = 'ellipsis';
-                textLink.title = textDiv.textContent;
             }
         }
     });
 }
 
+// Modal creation and event listeners for Archive/Delete actions
+function createModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <p>Are you sure you want to archive or delete the selected items?</p>
+        <div class="buttons">
+            <button id="archive-btn">Archive</button>
+            <button id="delete-btn">Delete</button>
+        </div>
+    `;
 
-function isFavorite(promptId) {
-    const favorites = JSON.parse(localStorage.getItem('favoritePrompts')) || [];
-    return favorites.includes(promptId);
-}
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    document.body.appendChild(overlay);
+    document.body.appendChild(modal);
 
-
-function toggleFavorite(promptId, starElement, itemElement) {
-    let favorites = JSON.parse(localStorage.getItem('favoritePrompts')) || [];
-
-    if (favorites.includes(promptId)) {
-
-        favorites = favorites.filter(id => id !== promptId);
-        starElement.innerHTML = '☆';
-        starElement.title = 'Add to favorites';
-        moveItemOutOfFavorites(itemElement);
-
-    } else {
-
-        favorites.push(promptId);
-        starElement.innerHTML = '⭐';
-        starElement.title = 'Remove from favorites';
-        moveItemToFavorites(itemElement);
+    // Show modal
+    const trashIcon = document.querySelector('.red-trash');
+    if (trashIcon) {
+        trashIcon.addEventListener('click', () => {
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+        });
     }
 
+    // Hide modal
+    overlay.addEventListener('click', () => {
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+    });
 
-    localStorage.setItem('favoritePrompts', JSON.stringify(favorites));
+    // Event listeners for Archive and Delete
+    document.getElementById('archive-btn').addEventListener('click', () => {
+        // Handle archive action
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+    });
+
+    document.getElementById('delete-btn').addEventListener('click', () => {
+        // Handle delete action
+        modal.style.display = 'none';
+        overlay.style.display = 'none';
+    });
 }
 
+// Wait for sidebar and initialize the edit mode and components
+function waitForSidebar() {
+    const observer = new MutationObserver(() => {
+        const sidebar = document.querySelector('.explore-gpts');
+        if (sidebar) {
+            addEditModeToggle();
+            addCheckboxesAndStars();
+            observer.disconnect();
+        }
+    });
 
-function moveItemToFavorites(itemElement) {
-    const favoritesSection = document.querySelector('#favorites-section');
-    if (favoritesSection && !favoritesSection.contains(itemElement)) {
-        favoritesSection.appendChild(itemElement);
-    }
-}
-
-function moveItemOutOfFavorites(itemElement) {
-    const originalSection = document.querySelector('ol');
-    if (originalSection && !originalSection.contains(itemElement)) {
-        originalSection.appendChild(itemElement);
-    }
-}
-
-
-waitForSidebar((sidebar) => {
-    initializeFavoritesSection(sidebar);
-    addCheckboxesAndStars();
-
-    const observer = new MutationObserver(addCheckboxesAndStars);
     observer.observe(document.body, { childList: true, subtree: true });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    injectAdditionalCSS();
+    waitForSidebar();
+    createModal();
 });
